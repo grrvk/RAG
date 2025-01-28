@@ -4,7 +4,7 @@ from django.shortcuts import render
 import json
 from django.http import JsonResponse
 
-from chat.processors.rag_processor import searchSimilar
+from chat.processors.faiss_processor import storeUserInformation, findFavourites, searchSimilar, generateAnswer
 
 
 def index(request):
@@ -19,6 +19,13 @@ def chat_response(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         user_query = data.get('query', '')
-        rag_response = searchSimilar(user_query)
+
+        if findFavourites(user_query):
+            storeUserInformation(user_query)
+
+        user_context = searchSimilar(user_query)
+        combined_request = "\n".join(user_context + [user_query])
+
+        rag_response = generateAnswer(combined_request)
         return JsonResponse({'response': rag_response})
 
