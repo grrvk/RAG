@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocktail Chat</title>
+    <style>
+        /* Basic styling for the chat */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .chat-container {
+            width: 500px;
+            margin: 50px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .chat-box {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 10px;
+        }
+        .input-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .message {
+            margin-bottom: 10px;
+        }
+        .message.user {
+            text-align: right;
+        }
+        .message.bot {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <input type="text" class="input-box" id="user-input" placeholder="Ask about cocktails..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        // Function to send the user's input to the server
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === "") return;
+
+            // Display user message in the chat box
+            displayMessage(userInput, 'user');
+
+            // Clear the input field
+            document.getElementById('user-input').value = '';
+
+            // Send an AJAX request to get a response from the server
+            fetch('/response/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // CSRF token for security
+                },
+                body: JSON.stringify({ 'query': userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the bot's response in the chat box
+                displayMessage(data.response, 'bot');
+            });
+        }
+
+        // Function to display a message in the chat box
+        function displayMessage(message, sender) {
+            var chatBox = document.getElementById('chat-box');
+            var messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+        }
+    </script>
+
+</body>
+</html>
