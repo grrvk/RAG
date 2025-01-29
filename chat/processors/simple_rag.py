@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, T5Tokenizer
 from chat.processors.data_processor import data
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.faiss import FAISS
@@ -11,8 +11,8 @@ embeddings = HuggingFaceEmbeddings(model_name=embeddings_model_name)
 
 storage = FAISS.from_texts(data, embeddings)
 
-model_name = 'Intel/dynamic_tinybert'
-tokenizer = AutoTokenizer.from_pretrained(model_name, padding=True, truncation=True, max_length=512)
+model_name = "google/flan-t5-base"
+tokenizer = T5Tokenizer.from_pretrained(model_name)
 
 qa_pipeline = pipeline("question-answering", model=model_name, tokenizer=tokenizer, return_tensors="pt")
 llm = HuggingFacePipeline(pipeline=qa_pipeline, model_kwargs={"temperature": 0.7, "max_length": 512})
@@ -21,7 +21,7 @@ retriever = storage.as_retriever()
 
 
 def beautifyAnswer(answer):
-    template = 'Here are recommendations per your request:'
+    template = 'Here is an answer per your request:'
     for a in answer:
         template = str.join('\n', (template, a.page_content))
     return template
@@ -33,9 +33,7 @@ def findFavourites(request):
 
     if any(word in request.lower() for word in favorites_keywords) or any(
             word in request.lower() for word in ingredients_keywords):
-        print('Found user favourites')
         return True
-    print('Not found favourites')
     return False
 
 
