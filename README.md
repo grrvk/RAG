@@ -8,7 +8,7 @@ cd RAG
 pip install -r requirements.txt
 
 # Run the project
-python manage.py
+python manage.py runserver
 ```
 
 ## Description
