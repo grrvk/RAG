@@ -84,9 +84,10 @@
             var chatBox = document.getElementById('chat-box');
             var messageElement = document.createElement('div');
             messageElement.classList.add('message', sender);
-            messageElement.textContent = message;
+            message = message.replace(/\n/g, '<br>');
+            messageElement.innerHTML = message;
             chatBox.appendChild(messageElement);
-            chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
     </script>
 
